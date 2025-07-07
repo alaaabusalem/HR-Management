@@ -1,3 +1,5 @@
+using Api._Helpers;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Repositories._Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,6 +11,19 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<DapperContext>();
+builder.Services.AddSingleton<IJwt,Jwt>();
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+    // Tell the authenticaion scheme "how/where" to validate the token + secret
+    options.TokenValidationParameters = Jwt.GetValidationPerameters(builder.Configuration);
+});
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
