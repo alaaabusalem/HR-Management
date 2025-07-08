@@ -18,7 +18,7 @@ namespace Domain.Models.Auth
         public DateOnly ContractEnd { get; set; }
         public bool IsActive { get; set; }
         public string? Phone {  get; set; }
-        public string? JwtToken { get; set; }
+        public List<string> RoleList { get; set; } = new();
 
     }
 }

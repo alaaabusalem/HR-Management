@@ -10,12 +10,11 @@ namespace Domain.Base
     public class ResponseHeader
     {
         public ResultType Status { set; get; }
-        public List<Messages> MessagesList { set; get; } = new();
+        public List<Message> MessagesList { set; get; } = new();
     }
-    public class Messages
+    public class Message
     {
         public string? MessageCode { set; get; }
         public string? MessageDesc { set; get; }
-        public string? ErrorRow { get; set; }
     }
 }

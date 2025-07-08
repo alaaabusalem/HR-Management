@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace Domain.Enums
 {
-    public enum ResultType: int
+
+    public   enum  ResultType : int
     {
         Success = 0,
 

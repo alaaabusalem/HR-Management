@@ -56,7 +56,8 @@ namespace Api._Helpers
                     new Claim("Name", (user.Name)),
                     new Claim("Email", (user.Email is not null) ? user.Email: ""),
                     new Claim("Phone", (user.Phone is not null) ? user.Phone : ""),
-                 
+                    new Claim("Phone", user.RoleList.ToString()),
+
                 };
 
                     // Generate token
