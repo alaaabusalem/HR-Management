@@ -76,7 +76,38 @@ namespace Repositories.Auth
 
         public ReturnResponse<User> GetData(User item)
         {
-            throw new NotImplementedException();
+            ReturnResponse<User> RES = new();
+            RES.Data = new();
+
+            try
+            {
+             using(var connection = _dapperContext.CreateConnection())
+                {
+
+                    DynamicParameters parameters= new DynamicParameters();
+                    parameters.Add("Id", item.Id);
+                    parameters.Add("Email", item.Email);
+                    parameters.Add("Name", item.Name);
+                    parameters.Add("ProcessStatus",DbType.Boolean,direction:ParameterDirection.Output);
+                    parameters.Add("StatusDesc",dbType: DbType.String, size: 50, direction: ParameterDirection.Input);
+                    parameters.Add("StatusCode", dbType: DbType.String, size: 50, direction: ParameterDirection.Output);
+                    var result = connection.Query<User>("", parameters, commandType: CommandType.StoredProcedure);
+                    if (parameters.Get<bool>("@ProcessStatus")== false)
+                    {
+                        RES.ResponseHeader.Status = Domain.Enums.ResultType.error;
+                        RES.ResponseHeader.MessagesList.Add(new Message()
+                        {
+                            MessageDesc=parameters.Get<string>("@StatusDesc"),
+                            MessageCode= parameters.Get<string>("@StatusCode"), 
+                        });
+                    }
+                }
+            }
+
+            catch (Exception ex) { 
+
+            }
+                throw new NotImplementedException();
         }
 
         public ReturnResponse<List<User>> GetDataList(User item)

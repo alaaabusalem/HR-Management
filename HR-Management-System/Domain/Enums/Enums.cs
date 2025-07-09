@@ -18,6 +18,8 @@ namespace Domain.Enums
         Unauthorized = 3,
 
         ValidationError = 5,
+        LoginFailed = 6,
+
 
     }
 }
