@@ -20,8 +20,21 @@ namespace Api.Controllers.Auth
         [Route("Add")]
         public ReturnResponse<User> Add(User user)
         {
+           
+
+
             var RES= new ReturnResponse<User>();
             RES.Data = new();
+            if (!ModelState.IsValid)
+            {
+                RES.ResponseHeader.Status = Domain.Enums.ResultType.error;
+                RES.ResponseHeader.MessagesList.Add(new Message()
+                {
+                    MessageCode = "000",
+                    MessageDesc = "The Name is Required"
+                });
+
+            }
             try
             {
                RES= _Svc.Add(user); 
@@ -31,6 +44,28 @@ namespace Api.Controllers.Auth
             
             }
             return RES; 
+        }
+
+        [HttpGet]
+        [Route("GetDataList")]
+        public ReturnResponse<List<User>> GetDataList(User user)
+        {
+
+
+
+            var RES = new ReturnResponse<List<User>>();
+            RES.Data = new();
+          
+            try
+            {
+                RES = _Svc.GetDataList(user);
+            }
+
+            catch (Exception ex)
+            {
+
+            }
+            return RES;
         }
     }
 }

@@ -15,11 +15,12 @@ namespace Services.Auth
     public class UserSvc : IUserSvc<User>
     {
         private readonly IUserRepo<User> _repo;
-        private readonly PasswordHasher<User> _passwordHasher;  
-        public UserSvc(IUserRepo<User> userRepo, PasswordHasher<User> passwordHasher)
+        private readonly IPasswordHasher<User> _passwordHasher;
+
+        public UserSvc(IUserRepo<User> userRepo, IPasswordHasher<User> passwordHasher)
         {
-            _repo= userRepo;    
-            _passwordHasher= passwordHasher;    
+            _repo = userRepo;
+            _passwordHasher = passwordHasher;
         }
         public ReturnResponse<User> Add(User item)
         {
@@ -32,6 +33,7 @@ namespace Services.Auth
                     var hashedPassword = HashPassword(item);
                      if(hashedPassword != "")
                     {
+                        item.Password = hashedPassword;
                         RES= _repo.Add(item);
 
                         return RES;
@@ -75,7 +77,7 @@ namespace Services.Auth
 
         public ReturnResponse<List<User>> GetDataList(User item)
         {
-            throw new NotImplementedException();
+            return _repo.GetDataList(item);
         }
 
         public ReturnResponse<User> Login(User user)

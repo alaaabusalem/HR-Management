@@ -36,11 +36,10 @@ namespace Repositories.Auth
                     parameters.Add("ContractEnd", item.ContractEnd, DbType.DateTime);
                     parameters.Add("IsActive", item.IsActive, DbType.Boolean);
                     parameters.Add("Id", item.Id, DbType.Guid, ParameterDirection.Output);
-                    parameters.Add("Id", item.Id, DbType.Guid, ParameterDirection.Output);
                     parameters.Add("ProcessStatus", dbType: DbType.Boolean, direction: ParameterDirection.Output);
                     parameters.Add("StatusDesc", dbType: DbType.String, size: int.MaxValue, direction: ParameterDirection.Output);
                     parameters.Add("StatusCode", dbType: DbType.String, size: 50, direction: ParameterDirection.Output);
-                    var response = connection.Execute("cmn.City_INSERT_S", parameters, commandType: CommandType.StoredProcedure);
+                    var response = connection.Execute("Auth.User_Insert_SP", parameters, commandType: CommandType.StoredProcedure);
 
                     if(parameters.Get<bool>("@ProcessStatus") == false)
                     {
@@ -112,7 +111,39 @@ namespace Repositories.Auth
 
         public ReturnResponse<List<User>> GetDataList(User item)
         {
-            throw new NotImplementedException();
+            var RES = new ReturnResponse<List<User>>();
+           // RES.Data = new();
+            try
+            {
+               
+                using (var connection = _dapperContext.CreateConnection())
+                {
+                    var parameters = new DynamicParameters();
+                    parameters.Add("Id", item.Id);
+                    //parameters.Add("Id", item.Id);
+                    //parameters.Add("Id", item.Id);
+                   
+                    var result = connection.Query<User>("Auth.User_Get_SP", parameters, commandType: CommandType.StoredProcedure).ToList();
+                    
+                    
+                    RES.Data = result;
+                }
+
+            }
+            catch (Exception ex) { 
+            
+            RES.ResponseHeader.Status=Domain.Enums.ResultType.error;
+             RES.ResponseHeader.MessagesList = new List<Message>();
+
+                RES.ResponseHeader.MessagesList.Add(new Message()
+                {
+                    MessageCode = "000",
+                    MessageDesc = "Somthing whent wrong on the DB"
+                });
+
+
+            }
+            return RES;
         }
 
         public ReturnResponse<User> Login(User user)

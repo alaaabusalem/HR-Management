@@ -1,6 +1,12 @@
 using Api._Helpers;
+using Domain.Interfaces.Repository;
+using Domain.Interfaces.Service;
+using Domain.Models.Auth;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Repositories._Helpers;
+using Repositories.Auth;
+using Services.Auth;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,10 +14,15 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<DapperContext>();
 builder.Services.AddSingleton<IJwt,Jwt>();
+builder.Services.AddSingleton<IJwt, Jwt>();
+builder.Services.AddScoped<IUserSvc<User>, UserSvc>();
+builder.Services.AddScoped<IUserRepo<User>, UserRepo>();
 
 builder.Services.AddAuthentication(options =>
 {
