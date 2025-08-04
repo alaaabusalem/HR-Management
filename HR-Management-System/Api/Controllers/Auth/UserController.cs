@@ -1,6 +1,7 @@
 ﻿using Domain.Base;
 using Domain.Interfaces.Service;
 using Domain.Models.Auth;
+using Domain.ViewModels.Auth;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,7 +19,7 @@ namespace Api.Controllers.Auth
 
         [HttpPost]
         [Route("Add")]
-        public ReturnResponse<User> Add(User user)
+        public ReturnResponse<User> Add(CreatUser user)
         {
            
 
@@ -37,7 +38,7 @@ namespace Api.Controllers.Auth
             }
             try
             {
-               RES= _Svc.Add(user); 
+               RES= _Svc.Add((User)user); 
             }
 
             catch (Exception ex) { 
@@ -59,6 +60,28 @@ namespace Api.Controllers.Auth
             try
             {
                 RES = _Svc.GetDataList(user);
+            }
+
+            catch (Exception ex)
+            {
+
+            }
+            return RES;
+        }
+
+        [HttpGet]
+        [Route("Login")]
+        public ReturnResponse<AuthUser> Login(User user)
+        {
+
+
+
+            var RES = new ReturnResponse<AuthUser>();
+            RES.Data = new();
+
+            try
+            {
+                RES = _Svc.Login(user);
             }
 
             catch (Exception ex)

@@ -1,7 +1,9 @@
-﻿using Domain.Base;
+﻿using Api._Helpers;
+using Domain.Base;
 using Domain.Interfaces.Repository;
 using Domain.Interfaces.Service;
 using Domain.Models.Auth;
+using Domain.ViewModels.Auth;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
@@ -16,11 +18,13 @@ namespace Services.Auth
     {
         private readonly IUserRepo<User> _repo;
         private readonly IPasswordHasher<User> _passwordHasher;
+        private readonly IJwt _jwt;
 
-        public UserSvc(IUserRepo<User> userRepo, IPasswordHasher<User> passwordHasher)
+        public UserSvc(IUserRepo<User> userRepo, IPasswordHasher<User> passwordHasher, IJwt jwt)
         {
             _repo = userRepo;
             _passwordHasher = passwordHasher;
+            _jwt = jwt; 
         }
         public ReturnResponse<User> Add(User item)
         {
@@ -80,16 +84,20 @@ namespace Services.Auth
             return _repo.GetDataList(item);
         }
 
-        public ReturnResponse<User> Login(User user)
+        public ReturnResponse<AuthUser> Login(User user)
         {
-            ReturnResponse<User> RES = new();
+            ReturnResponse<AuthUser> RES = new();
             RES.Data= new();
 
             try
             {
-              var dataUser= _repo.GetData(user).Data;
-                if (VerifyPassword(dataUser, user.Password))
+              var dataUser= _repo.Login(user).Data;
+                if (dataUser !=null && dataUser.Password !=null && VerifyPassword(dataUser, user.Password))
                 {
+                    var AuthUser = _repo.GetData(user).Data;
+
+                    var jwt = _jwt.GenerateJwtToken(AuthUser, new TimeSpan(1,0,0));
+                    RES.Data.jwt= jwt;  
                     return RES;
                 }
             }

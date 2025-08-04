@@ -1,6 +1,8 @@
 ﻿using Domain.Models.Auth;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -52,14 +54,18 @@ namespace Api._Helpers
 
                     var claims = new[]
                {
-                    new Claim("UserId", user.Id.ToString()),
-                    new Claim("Name", (user.Name)),
+                    new Claim("UserId", user.Id?.ToString() ?? ""),
+                    new Claim("Name", (user.Name is not null ? user.Name:"")),
                     new Claim("Email", (user.Email is not null) ? user.Email: ""),
                     new Claim("Phone", (user.Phone is not null) ? user.Phone : ""),
-                    new Claim("Phone", user.RoleList.ToString()),
+                  //  new Claim("Role", user.RoleList?.ToString() ?? ""),
 
                 };
 
+                    foreach (var role in user.RoleList)
+                    {
+                        claims.Append(new Claim(ClaimTypes.Role, role.ToString()));
+                    }
                     // Generate token
                     var token = new JwtSecurityToken(
                 expires: DateTime.UtcNow + expiresIn,

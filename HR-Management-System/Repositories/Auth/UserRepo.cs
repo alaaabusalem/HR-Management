@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using Domain._Helpers;
 using Domain.Base;
 using Domain.Interfaces.Repository;
 using Domain.Models.Auth;
@@ -35,6 +36,8 @@ namespace Repositories.Auth
                     parameters.Add("ContractStart", item.ContractStart, DbType.DateTime);
                     parameters.Add("ContractEnd", item.ContractEnd, DbType.DateTime);
                     parameters.Add("IsActive", item.IsActive, DbType.Boolean);
+                    parameters.Add("RoleList", item.RoleList.ListToDataTable().AsTableValuedParameter());
+
                     parameters.Add("Id", item.Id, DbType.Guid, ParameterDirection.Output);
                     parameters.Add("ProcessStatus", dbType: DbType.Boolean, direction: ParameterDirection.Output);
                     parameters.Add("StatusDesc", dbType: DbType.String, size: int.MaxValue, direction: ParameterDirection.Output);
@@ -80,33 +83,27 @@ namespace Repositories.Auth
 
             try
             {
-             using(var connection = _dapperContext.CreateConnection())
-                {
+                 using(var connection = _dapperContext.CreateConnection())
+                 {
 
                     DynamicParameters parameters= new DynamicParameters();
                     parameters.Add("Id", item.Id);
                     parameters.Add("Email", item.Email);
                     parameters.Add("Name", item.Name);
-                    parameters.Add("ProcessStatus",DbType.Boolean,direction:ParameterDirection.Output);
-                    parameters.Add("StatusDesc",dbType: DbType.String, size: 50, direction: ParameterDirection.Input);
-                    parameters.Add("StatusCode", dbType: DbType.String, size: 50, direction: ParameterDirection.Output);
-                    var result = connection.Query<User>("", parameters, commandType: CommandType.StoredProcedure);
-                    if (parameters.Get<bool>("@ProcessStatus")== false)
-                    {
-                        RES.ResponseHeader.Status = Domain.Enums.ResultType.error;
-                        RES.ResponseHeader.MessagesList.Add(new Message()
-                        {
-                            MessageDesc=parameters.Get<string>("@StatusDesc"),
-                            MessageCode= parameters.Get<string>("@StatusCode"), 
-                        });
-                    }
+                    
+                    var result = connection.Query<User>("Auth.User_Get_SP", parameters, commandType: CommandType.StoredProcedure);
+            
+
+                        RES.Data = result.FirstOrDefault();
+                    
+                 }
+            }
+
+              catch (Exception ex) 
+              { 
+
                 }
-            }
-
-            catch (Exception ex) { 
-
-            }
-                throw new NotImplementedException();
+            return RES;
         }
 
         public ReturnResponse<List<User>> GetDataList(User item)
@@ -148,7 +145,25 @@ namespace Repositories.Auth
 
         public ReturnResponse<User> Login(User user)
         {
-            throw new NotImplementedException();
+            var RES = new ReturnResponse<User>();
+            RES.Data = new();
+            try
+            {
+              using( var connection= _dapperContext.CreateConnection())
+                {
+                    var parametars= new DynamicParameters();
+                    parametars.Add("Email", user.Email);
+                     var result=  connection.Query<User>("Auth.User_Check_Login_SP", parametars, commandType: CommandType.StoredProcedure).FirstOrDefault();
+                    if (result != null) {
+                        RES.Data = result;
+                    }
+                }
+            }
+
+            catch (Exception ex) {
+            
+            }
+            return RES;
         }
 
         public ReturnResponse<User> Update(User item)

@@ -19,7 +19,6 @@ builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<DapperContext>();
-builder.Services.AddSingleton<IJwt,Jwt>();
 builder.Services.AddSingleton<IJwt, Jwt>();
 builder.Services.AddScoped<IUserSvc<User>, UserSvc>();
 builder.Services.AddScoped<IUserRepo<User>, UserRepo>();
@@ -44,8 +43,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
 app.UseHttpsRedirection();
+
 
 app.UseAuthorization();
 
