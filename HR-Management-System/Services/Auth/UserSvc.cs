@@ -26,7 +26,7 @@ namespace Services.Auth
             _passwordHasher = passwordHasher;
             _jwt = jwt; 
         }
-        public ReturnResponse<User> Add(User item)
+        public async Task<ReturnResponse<User>> Add(User item)
         {
             ReturnResponse<User> RES= new();
             RES.Data = new();
@@ -38,7 +38,7 @@ namespace Services.Auth
                      if(hashedPassword != "")
                     {
                         item.Password = hashedPassword;
-                        RES= _repo.Add(item);
+                        RES=await _repo.Add(item);
 
                         return RES;
                     }
@@ -59,19 +59,19 @@ namespace Services.Auth
             return RES;
             }
 
-        public ReturnResponse<User> Delete(User item)
+        public Task<ReturnResponse<User>> Delete(User item)
         {
             throw new NotImplementedException();
         }
 
-        public ReturnResponse<User> GetData(User item)
+        public async Task<ReturnResponse<User>> GetData(User item)
         {
             ReturnResponse<User> RES = new();
             RES.Data = new();
 
             try
             {
-                RES= _repo.GetData(item);
+                RES= await _repo.GetData(item);
             }
             catch(Exception ex) { 
             
@@ -79,24 +79,35 @@ namespace Services.Auth
             return RES;
             }
 
-        public ReturnResponse<List<User>> GetDataList(User item)
+        public async Task<ReturnResponse<List<User>>> GetDataList(User item)
         {
-            return _repo.GetDataList(item);
+            return await _repo.GetDataList(item);
         }
 
-        public ReturnResponse<AuthUser> Login(User user)
+        public async Task<ReturnResponse<List<Role>>> GetUserRoles(User user)
+        {
+            return await _repo.GetUserRoles(user);
+        }
+
+        public async Task<ReturnResponse<AuthUser>> Login(User user)
         {
             ReturnResponse<AuthUser> RES = new();
             RES.Data= new();
 
             try
             {
-              var dataUser= _repo.Login(user).Data;
+              var dataUser= (await _repo.Login(user)).Data;
                 if (dataUser !=null && dataUser.Password !=null && VerifyPassword(dataUser, user.Password))
                 {
-                    var AuthUser = _repo.GetData(user).Data;
+                    var AuthUser = (await _repo.GetData(user)).Data;
+                    var userRoles = new List<Role>();
+                    if (AuthUser !=null && AuthUser.Id != null)
+                    {
+                         userRoles = (await GetUserRoles(AuthUser)).Data;
 
-                    var jwt = _jwt.GenerateJwtToken(AuthUser, new TimeSpan(1,0,0));
+                    }
+                    //AuthUser.RoleList = userRoles;
+                    var jwt = _jwt.GenerateJwtToken(AuthUser, userRoles, new TimeSpan(1,0,0));
                     RES.Data.jwt= jwt;  
                     return RES;
                 }
@@ -115,7 +126,7 @@ namespace Services.Auth
         }
 
 
-        public ReturnResponse<User> Update(User item)
+        public Task<ReturnResponse<User>> Update(User item)
         {
             throw new NotImplementedException();
         }

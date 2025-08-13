@@ -5,6 +5,6 @@ namespace Api._Helpers
     public interface IJwt
     {
 
-      string  GenerateJwtToken(User user, TimeSpan expiresIn);
+      string  GenerateJwtToken(User user,List<Role> Roles,TimeSpan expiresIn);
     }
 }

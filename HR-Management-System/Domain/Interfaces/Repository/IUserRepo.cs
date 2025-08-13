@@ -1,6 +1,7 @@
 ﻿using Domain.Base;
 using Domain.Interfaces.Base;
 using Domain.Models.Auth;
+using Domain.UDT.Auth;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,8 @@ namespace Domain.Interfaces.Repository
 {
     public interface IUserRepo<T>:IBaseRepo<T>
     {
-        ReturnResponse<T> Login(T user);   
+        Task<ReturnResponse<T>> Login(T user);
+        Task<ReturnResponse<List<Role>>> GetUserRoles(T user);
+
     }
 }

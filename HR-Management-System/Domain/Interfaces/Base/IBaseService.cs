@@ -9,10 +9,10 @@ namespace Domain.Interfaces.Base
 {
     public interface IBaseService<T>
     {
-        ReturnResponse<T> Add(T item);
-        ReturnResponse<T> Update(T item);
-        ReturnResponse<T> Delete(T item);
-        ReturnResponse<T> GetData(T item);
-        ReturnResponse<List<T>> GetDataList(T item);
+        Task<ReturnResponse<T>> Add(T item);
+        Task<ReturnResponse<T>> Update(T item);
+        Task<ReturnResponse<T>> Delete(T item);
+        Task<ReturnResponse<T>> GetData(T item);
+        Task<ReturnResponse<List<T>>> GetDataList(T item);
     }
 }

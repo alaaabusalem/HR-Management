@@ -41,7 +41,7 @@ namespace Api._Helpers
 
             return new SymmetricSecurityKey(secretBytes);
         }
-        public string GenerateJwtToken(User user, TimeSpan expiresIn)
+        public string GenerateJwtToken(User user, List<Role> Roles, TimeSpan expiresIn)
         {
             try
             {
@@ -52,19 +52,21 @@ namespace Api._Helpers
 
                     // Generate principles
 
-                    var claims = new[]
+                    var claims = new List<Claim>()
                {
                     new Claim("UserId", user.Id?.ToString() ?? ""),
                     new Claim("Name", (user.Name is not null ? user.Name:"")),
                     new Claim("Email", (user.Email is not null) ? user.Email: ""),
                     new Claim("Phone", (user.Phone is not null) ? user.Phone : ""),
+                     new Claim("TokenVersion", (user.TokenVersion is not null) ? user.TokenVersion.ToString() : ""),
+
                   //  new Claim("Role", user.RoleList?.ToString() ?? ""),
 
                 };
 
-                    foreach (var role in user.RoleList)
+                    foreach (var role in Roles)
                     {
-                        claims.Append(new Claim(ClaimTypes.Role, role.ToString()));
+                        claims.Add(new Claim(ClaimTypes.Role, role.Name));
                     }
                     // Generate token
                     var token = new JwtSecurityToken(

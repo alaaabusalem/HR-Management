@@ -2,6 +2,7 @@
 using Domain.Interfaces.Service;
 using Domain.Models.Auth;
 using Domain.ViewModels.Auth;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,9 +18,11 @@ namespace Api.Controllers.Auth
             _Svc = svc; 
         }
 
+        
         [HttpPost]
+        [Authorize(Roles ="Admin")]
         [Route("Add")]
-        public ReturnResponse<User> Add(CreatUser user)
+        public async Task<ReturnResponse<User>> Add(CreatUser user)
         {
            
 
@@ -38,7 +41,7 @@ namespace Api.Controllers.Auth
             }
             try
             {
-               RES= _Svc.Add((User)user); 
+               RES= await _Svc.Add((User)user); 
             }
 
             catch (Exception ex) { 
@@ -49,7 +52,7 @@ namespace Api.Controllers.Auth
 
         [HttpGet]
         [Route("GetDataList")]
-        public ReturnResponse<List<User>> GetDataList(User user)
+        public async Task<ReturnResponse<List<User>>> GetDataList(User user)
         {
 
 
@@ -59,7 +62,7 @@ namespace Api.Controllers.Auth
           
             try
             {
-                RES = _Svc.GetDataList(user);
+                RES =await _Svc.GetDataList(user);
             }
 
             catch (Exception ex)
@@ -71,7 +74,7 @@ namespace Api.Controllers.Auth
 
         [HttpGet]
         [Route("Login")]
-        public ReturnResponse<AuthUser> Login(User user)
+        public async Task<ReturnResponse<AuthUser>> Login(User user)
         {
 
 
@@ -81,7 +84,7 @@ namespace Api.Controllers.Auth
 
             try
             {
-                RES = _Svc.Login(user);
+                RES = await _Svc.Login(user);
             }
 
             catch (Exception ex)

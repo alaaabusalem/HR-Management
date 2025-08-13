@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Repositories._Helpers;
 using Repositories.Auth;
 using Services.Auth;
+using Services._Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,8 +31,8 @@ builder.Services.AddAuthentication(options =>
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 }).AddJwtBearer(options =>
 {
-    // Tell the authenticaion scheme "how/where" to validate the token + secret
     options.TokenValidationParameters = Jwt.GetValidationPerameters(builder.Configuration);
+    options.AddTokenVersionCheck();
 });
 builder.Services.AddAuthorization();
 

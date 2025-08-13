@@ -20,7 +20,7 @@ namespace Repositories.Auth
         {
             _dapperContext = dapperContext;
         }
-        public ReturnResponse<User> Add(User item)
+        public async Task<ReturnResponse<User>> Add(User item)
         {
             var RES= new ReturnResponse<User>();
             RES.Data = new();
@@ -42,7 +42,7 @@ namespace Repositories.Auth
                     parameters.Add("ProcessStatus", dbType: DbType.Boolean, direction: ParameterDirection.Output);
                     parameters.Add("StatusDesc", dbType: DbType.String, size: int.MaxValue, direction: ParameterDirection.Output);
                     parameters.Add("StatusCode", dbType: DbType.String, size: 50, direction: ParameterDirection.Output);
-                    var response = connection.Execute("Auth.User_Insert_SP", parameters, commandType: CommandType.StoredProcedure);
+                    var response =await connection.ExecuteAsync("Auth.User_Insert_SP", parameters, commandType: CommandType.StoredProcedure);
 
                     if(parameters.Get<bool>("@ProcessStatus") == false)
                     {
@@ -71,12 +71,12 @@ namespace Repositories.Auth
             return RES;
         }
 
-        public ReturnResponse<User> Delete(User item)
+        public Task<ReturnResponse<User>> Delete(User item)
         {
             throw new NotImplementedException();
         }
 
-        public ReturnResponse<User> GetData(User item)
+        public async Task<ReturnResponse<User>> GetData(User item)
         {
             ReturnResponse<User> RES = new();
             RES.Data = new();
@@ -91,7 +91,7 @@ namespace Repositories.Auth
                     parameters.Add("Email", item.Email);
                     parameters.Add("Name", item.Name);
                     
-                    var result = connection.Query<User>("Auth.User_Get_SP", parameters, commandType: CommandType.StoredProcedure);
+                    var result = await connection.QueryAsync<User>("Auth.User_Get_SP", parameters, commandType: CommandType.StoredProcedure);
             
 
                         RES.Data = result.FirstOrDefault();
@@ -106,7 +106,7 @@ namespace Repositories.Auth
             return RES;
         }
 
-        public ReturnResponse<List<User>> GetDataList(User item)
+        public async Task<ReturnResponse<List<User>>> GetDataList(User item)
         {
             var RES = new ReturnResponse<List<User>>();
            // RES.Data = new();
@@ -120,7 +120,7 @@ namespace Repositories.Auth
                     //parameters.Add("Id", item.Id);
                     //parameters.Add("Id", item.Id);
                    
-                    var result = connection.Query<User>("Auth.User_Get_SP", parameters, commandType: CommandType.StoredProcedure).ToList();
+                    var result = (await connection.QueryAsync<User>("Auth.User_Get_SP", parameters, commandType: CommandType.StoredProcedure)).ToList();
                     
                     
                     RES.Data = result;
@@ -143,7 +143,35 @@ namespace Repositories.Auth
             return RES;
         }
 
-        public ReturnResponse<User> Login(User user)
+        public async Task<ReturnResponse<List<Role>>> GetUserRoles(User user)
+        {
+            var RES= new ReturnResponse<List<Role>>();
+            if (user.Id != null)
+            {
+                using (var connection = _dapperContext.CreateConnection())
+                {
+                    DynamicParameters parameters = new DynamicParameters();
+
+                    parameters.Add("Id", user.Id);
+                    var result= (await connection.QueryAsync<Role>("Auth.User_GetUserRole_SP", parameters, commandType: CommandType.StoredProcedure)).ToList();
+                    RES.Data = result;
+
+                }
+                return RES;
+            }
+            else
+            {
+                RES.ResponseHeader.Status = Domain.Enums.ResultType.error;
+                RES.ResponseHeader.MessagesList.Add(new Message()
+                {
+                    MessageCode = "000",
+                    MessageDesc = "the Id is null and that not correct"
+                });
+                return RES;
+            }
+        }
+
+        public async Task<ReturnResponse<User>> Login(User user)
         {
             var RES = new ReturnResponse<User>();
             RES.Data = new();
@@ -153,7 +181,7 @@ namespace Repositories.Auth
                 {
                     var parametars= new DynamicParameters();
                     parametars.Add("Email", user.Email);
-                     var result=  connection.Query<User>("Auth.User_Check_Login_SP", parametars, commandType: CommandType.StoredProcedure).FirstOrDefault();
+                     var result= (await  connection.QueryAsync<User>("Auth.User_Check_Login_SP", parametars, commandType: CommandType.StoredProcedure)).FirstOrDefault();
                     if (result != null) {
                         RES.Data = result;
                     }
@@ -166,7 +194,7 @@ namespace Repositories.Auth
             return RES;
         }
 
-        public ReturnResponse<User> Update(User item)
+        public Task<ReturnResponse<User>> Update(User item)
         {
             throw new NotImplementedException();
         }

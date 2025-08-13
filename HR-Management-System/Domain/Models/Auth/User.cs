@@ -20,7 +20,8 @@ namespace Domain.Models.Auth
         public bool IsActive { get; set; }
         public string? Phone {  get; set; }
         public List<RoleUDT> RoleList { get; set; } = new();
-
+        public int? TokenVersion { get; set; }
+        
 
         public static explicit operator User(CreatUser creatUser)
         {
